@@ -51,9 +51,7 @@ typedef struct {
 } GameState;
 
 // Game functions
-void addRoom(GameState* g);
-void initPlayer(GameState* g);
 void playGame(GameState* g);
-void freeGame(GameState* g);
+
 
 #endif

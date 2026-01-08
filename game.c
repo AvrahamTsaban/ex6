@@ -7,10 +7,9 @@
 
 
 
-void playGame(GameState* g);
-
-void freeGame(GameState* g) {
-    // free: rooms list et al, player et al
+void playGame(GameState* g) {
+    // game loop implementation goes here
 }
+
 
 

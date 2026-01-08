@@ -4,6 +4,9 @@
 #include "utils.h"
 #include "bst.h"
 
+void addRoom(GameState* g);
+void initPlayer(GameState* g);
+void freeGame(GameState* g);
 typedef void (*ActionFunc)(GameState*);
 
 int main(int argc, char* argv[]) {
@@ -30,7 +33,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void addRoom(GameState* g) {
+static void addRoom(GameState* g) {
     // check for null game state
     if (g == NULL) {
         return;
@@ -145,12 +148,12 @@ static Item *getItem() {
     return item;
 }
 
-void initPlayer(GameState* g) {
+static void initPlayer(GameState* g) {
     // check for null game state
     if (g == NULL) {
         return;
     }
-    
+
     // initialize player only if not already done
     if (g->player == NULL) {
         Player *player = safeMalloc(sizeof(Player));
@@ -164,3 +167,47 @@ void initPlayer(GameState* g) {
         g->player = player;
     }
 }
+
+static void freeGame(GameState* g) {
+    // free player and its BSTs, then rooms list
+    if (g == NULL) {
+        return;
+    }
+
+    if (g->player != NULL) {
+        if (g->player->bag != NULL) {
+            bstFree(g->player->bag->root, g->player->bag->freeData);
+            free(g->player->bag);
+        }
+        if (g->player->defeatedMonsters != NULL) {
+            bstFree(g->player->defeatedMonsters->root, g->player->defeatedMonsters->freeData);
+            free(g->player->defeatedMonsters);
+        }
+        free(g->player);
+    }
+
+    Room *tmp, *iter = g->rooms;
+    while (iter != NULL) {
+        tmp = iter;
+        iter = iter->next;
+        freeRoom(tmp);
+    }
+}
+
+static void freeRoom(Room* r) {
+    // free monster and item in room, then room itself
+    if (r == NULL) {
+        return;
+    }
+
+    if (r->monster != NULL) {
+        freeMonster(r->monster);
+    }
+
+    if (r->item != NULL) {
+        freeItem(r->item);
+    }
+
+    free(r);
+}
+
