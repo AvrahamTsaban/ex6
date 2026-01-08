@@ -1,7 +1,29 @@
 #ifndef UTILS_H
 #define UTILS_H
+#define BASE_STR_LEN 8
 
+
+// I/O and memory
 int getInt(const char* prompt);
 char* getString(const char* prompt);
+void *safeRealloc(void *ptr, size_t newSize);
+void *safeMalloc(size_t newSize);
+
+// Monster functions
+void freeMonster(void* data);
+int compareMonsters(void* a, void* b);
+void printMonster(void* data);
+
+// Item functions
+void freeItem(void* data);
+int compareItems(void* a, void* b);
+void printItem(void* data);
+
+// rooms and map functions
+int isOccupied(Room *newRoom, GameState *g);
+Room *findByID(int id, GameState *g);
+void displayMap(GameState* g);
+void roomLegend(GameState* g);
+
 
 #endif

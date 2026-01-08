@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "game.h"
 #include "utils.h"
+#include "bst.h"
 
 typedef void (*ActionFunc)(GameState*);
 
@@ -27,4 +28,139 @@ int main(int argc, char* argv[]) {
 
     freeGame(&game);
     return 0;
+}
+
+void addRoom(GameState* g) {
+    // check for null game state
+    if (g == NULL) {
+        return;
+    }
+
+    // create new room and zero irrelevant fields
+    Room *newRoom = safeMalloc(sizeof(Room));
+    newRoom->visited = 0;
+    newRoom->next = NULL;
+
+    // set room coordinates
+    if (g->roomCount == 0) {
+        newRoom->x = 0;
+        newRoom->y = 0;
+    } else {
+        // display map and legend for user to choose attachment point
+        displayMap(g);
+        roomLegend(g);
+        int attachTo = getInt("Attach to room ID: ");
+        if (attachTo > g->roomCount || attachTo <= 0) {
+            printf("Invalid ID");
+            free(newRoom);
+            return;
+        }
+
+        // get anchor room by ID and direction to place new room
+        Room *anchor = findByID(attachTo, g);
+        Direction direction = getInt("Direction (0=Up,1=Down,2=Left,3=Right): ");
+        switch (direction) {
+        case UP:
+            newRoom->x = anchor->x;
+            newRoom->y = anchor->y - 1;
+            break;
+        case DOWN:
+            newRoom->x = anchor->x;
+            newRoom->y = anchor->y + 1;
+            break;
+        case LEFT:
+            newRoom->x = anchor->x - 1;
+            newRoom->y = anchor->y;
+            break;
+        case RIGHT:
+            newRoom->x = anchor->x + 1;
+            newRoom->y = anchor->y;
+            break;
+        default:
+            // undefined behaviour, uses wrong error for bug-by-bug compatibility with example code
+            printf("Room exists there\n");
+            free(newRoom);
+            return;
+        }
+        if (isOccupied(newRoom, g)) {
+            printf("Room exists there\n");
+            free(newRoom);
+            return;
+        }
+    }
+
+    // set monster and item for new room
+    newRoom->monster = getMonster();
+    newRoom->item = getItem();
+
+    // assign ID, increase room count by 1 and add new room to game state's rooms list
+    newRoom->id = ++(g->roomCount);
+    if (g->rooms == NULL) {
+        g->rooms = newRoom;
+    } else {
+        Room *iter = g->rooms;
+        while (iter->next != NULL) {
+            iter = iter->next;
+        }
+        iter->next = newRoom;
+    }
+
+    // confirm room creation
+    printf("Created room %d at (%d,%d)\n", newRoom->id, newRoom->x, newRoom->y);
+}
+
+static Monster *getMonster() {
+    // ask user if they want to add a monster
+    int hasMonster = getInt("Add monster? (1=Yes, 0=No): ");
+    Monster *monster = NULL;
+
+    // if yes, create new monster and get its details from user
+    if (hasMonster) {
+        monster = safeMalloc(sizeof(Monster));
+        monster->name = getString("Monster name: ");
+        monster->type = getInt("Type (0-4): ");
+        monster->maxHp = getInt("HP: ");
+        monster->hp = monster->maxHp;
+        monster->attack = getInt("Attack: ");
+    }
+
+    // return created monster or NULL
+    return monster;
+}
+
+static Item *getItem() {
+    // ask user if they want to add an item
+    int hasItem = getInt("Add item? (1=Yes, 0=No): ");
+    Item *item = NULL;
+
+    // if yes, create new item and get its details from user
+    if (hasItem) {
+        item = safeMalloc(sizeof(Item));
+        item->name = getString("Item name: ");
+        item->type = getInt("Type (0=Armor, 1=Sword): ");
+        item->value = getInt("Value: ");
+    }
+
+    // return created item or NULL
+    return item;
+}
+
+void initPlayer(GameState* g) {
+    // check for null game state
+    if (g == NULL) {
+        return;
+    }
+    
+    // initialize player only if not already done
+    if (g->player == NULL) {
+        Player *player = safeMalloc(sizeof(Player));
+        player->bag = createBST(compareItems, printItem, freeItem);
+        player->defeatedMonsters = createBST(compareMonsters, printMonster, freeMonster);
+        player->maxHp = g->configMaxHp;
+        player->hp = player->maxHp;
+        player->baseAttack = g->configBaseAttack;
+        player->currentRoom = 0;
+        
+        g->player = player;
+    }
 }

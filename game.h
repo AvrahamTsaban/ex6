@@ -3,8 +3,12 @@
 
 #include "bst.h"
 
+#define EXISTS 'V'
+#define N_EXISTS 'X'
+
 typedef enum { ARMOR, SWORD } ItemType;
 typedef enum { PHANTOM, SPIDER, DEMON, GOLEM, COBRA } MonsterType;
+typedef enum { UP, DOWN, LEFT, RIGHT} Direction;
 
 typedef struct Item {
     char* name;
@@ -45,16 +49,6 @@ typedef struct {
     int configMaxHp;
     int configBaseAttack;
 } GameState;
-
-// Monster functions
-void freeMonster(void* data);
-int compareMonsters(void* a, void* b);
-void printMonster(void* data);
-
-// Item functions
-void freeItem(void* data);
-int compareItems(void* a, void* b);
-void printItem(void* data);
 
 // Game functions
 void addRoom(GameState* g);
