@@ -9,6 +9,7 @@
 typedef enum { ARMOR, SWORD } ItemType;
 typedef enum { PHANTOM, SPIDER, DEMON, GOLEM, COBRA } MonsterType;
 typedef enum { UP, DOWN, LEFT, RIGHT} Direction;
+typedef enum { FALSE, TRUE} Bool;
 
 typedef struct Item {
     char* name;
@@ -49,6 +50,11 @@ typedef struct {
     int configMaxHp;
     int configBaseAttack;
 } GameState;
+
+typedef struct {
+    int x;
+    int y;
+} Coordinates;
 
 // Game functions
 void playGame(GameState* g);

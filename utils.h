@@ -8,6 +8,7 @@ int getInt(const char* prompt);
 char* getString(const char* prompt, GameState *g);
 void *safeRealloc(void *ptr, size_t newSize, GameState *g);
 void *safeMalloc(size_t newSize, GameState *g);
+Direction getDir ();
 
 // Monster functions
 void freeMonster(void* data);
@@ -20,10 +21,11 @@ int compareItems(void* a, void* b);
 void printItem(void* data);
 
 // rooms and map functions
-int isOccupied(Room *newRoom, GameState *g);
+Room *findByCoordinates(Coordinates coords, GameState *g);
 Room *findByID(int id, GameState *g);
 void displayMap(GameState* g);
 void roomLegend(GameState* g);
+void moveCoords(Coordinates *coord, Direction dir);
 
 
 #endif

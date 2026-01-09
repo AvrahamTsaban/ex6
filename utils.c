@@ -5,6 +5,10 @@
 #include "game.h"
 
 
+// todo: get all getInt to enum calls to adjusted funcs like getDir and maybe make getint static
+
+
+
 void *safeRealloc(void *ptr, size_t newSize, GameState* g) {
 // reallocate memory and exit program if allocation fails (frees ptr if newSize is 0)
     if (newSize == 0) {
@@ -88,6 +92,19 @@ static char safeGetChar() {
     } else {
         return (char)inp;
     }
+}
+
+Direction getDir () {
+    Direction dir;
+    do {
+        int dirInt = getInt("Direction (0=Up,1=Down,2=Left,3=Right): "); 
+        if (dirInt < 0 || dirInt > 3) {
+            printf("Invalid direction\n");
+            continue;
+        }
+        dir = (Direction)dirInt;
+    } while (dir < 0 || dir > 3);
+    return dir;
 }
 
 /**********
@@ -287,22 +304,43 @@ Room *findByID(int id, GameState *g) {
     return NULL;
 }
 
-int isOccupied(Room *newRoom, GameState *g) {
+Room *findByCoordinates(Coordinates coords, GameState *g) {
     // check for null game state or empty rooms list
     if (g == NULL || g->rooms == NULL) {
         return NULL;
     }
 
-    // search for room with same coordinates as newRoom in game state g
+    // search for room with same coordinates as coords in game state g
     Room *iter = g->rooms;
     while (iter->next != NULL) {
-        if (iter->x == newRoom->x && iter->y == newRoom->y) {
-            return 1;
+        if (iter->x == coords.x && iter->y == coords.y) {
+            return iter;
         }
         iter = iter->next;
     }
     
-    return 0; 
+    return NULL; 
+}
+
+void moveCoords(Coordinates *coord, Direction dir) {
+    // move coordinates in given direction
+    switch (dir) {
+        case UP:
+            coord->y = coord->y - 1;
+            break;
+        case DOWN:
+            coord->y = coord->y + 1;
+            break;
+        case LEFT:
+            coord->x = coord->x - 1;
+            break;
+        case RIGHT:
+            coord->x = coord->x + 1;
+            break;
+        default:
+            // undefined behaviour, change nothing
+            return;
+        }
 }
 
 /**********

@@ -54,44 +54,29 @@ static void addRoom(GameState* g) {
         // display map and legend for user to choose attachment point
         displayMap(g);
         roomLegend(g);
+
+        // get anchor room ID and direction to place new room
         int attachTo = getInt("Attach to room ID: ");
-        if (attachTo > g->roomCount || attachTo <= 0) {
+        Room *anchor = findByID(attachTo, g);
+        if (attachTo > g->roomCount || attachTo <= 0 || anchor == NULL) {
             printf("Invalid ID");
             free(newRoom);
             return;
         }
 
-        // get anchor room by ID and direction to place new room
-        Room *anchor = findByID(attachTo, g);
         Direction direction = getInt("Direction (0=Up,1=Down,2=Left,3=Right): ");
-        switch (direction) {
-        case UP:
-            newRoom->x = anchor->x;
-            newRoom->y = anchor->y - 1;
-            break;
-        case DOWN:
-            newRoom->x = anchor->x;
-            newRoom->y = anchor->y + 1;
-            break;
-        case LEFT:
-            newRoom->x = anchor->x - 1;
-            newRoom->y = anchor->y;
-            break;
-        case RIGHT:
-            newRoom->x = anchor->x + 1;
-            newRoom->y = anchor->y;
-            break;
-        default:
-            // undefined behaviour, uses wrong error for bug-by-bug compatibility with example code
+        Coordinates coords = {anchor->x, anchor->y};
+        moveCoords(&coords, direction);
+
+        // check if room already exists at new coordinates or moveCoords failed
+        if (findByCoordinates(coords, g) != NULL || (coords.x == anchor->x && coords.y == anchor->y)) {
             printf("Room exists there\n");
             free(newRoom);
             return;
         }
-        if (isOccupied(newRoom, g)) {
-            printf("Room exists there\n");
-            free(newRoom);
-            return;
-        }
+
+        newRoom->x = coords.x;
+        newRoom->y = coords.y;
     }
 
     // set monster and item for new room
