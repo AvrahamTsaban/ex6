@@ -5,9 +5,9 @@
 
 // I/O and memory
 int getInt(const char* prompt);
-char* getString(const char* prompt);
-void *safeRealloc(void *ptr, size_t newSize);
-void *safeMalloc(size_t newSize);
+char* getString(const char* prompt, GameState *g);
+void *safeRealloc(void *ptr, size_t newSize, GameState *g);
+void *safeMalloc(size_t newSize, GameState *g);
 
 // Monster functions
 void freeMonster(void* data);

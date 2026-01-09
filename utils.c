@@ -5,10 +5,10 @@
 #include "game.h"
 
 
-void *safeRealloc(void *ptr, size_t newSize) {
+void *safeRealloc(void *ptr, size_t newSize, GameState* g) {
 // reallocate memory and exit program if allocation fails (frees ptr if newSize is 0)
     if (newSize == 0) {
-        // making some undefined compiler behabiour well-defined
+        // making some undefined compiler behaviour well-defined
         free(ptr);
         return ptr;
     }
@@ -16,18 +16,18 @@ void *safeRealloc(void *ptr, size_t newSize) {
     void *newPtr = realloc(ptr, newSize);
     if (!newPtr) {
         free(ptr);
-        freeAll();
+        freeGame(g);
         exit(1);
     }
 
     return newPtr;
 }
 
-void *safeMalloc(size_t newSize) {
+void *safeMalloc(size_t newSize, GameState* g) {
 // allocate memory and exit program if allocation fails
     void *ptr = malloc(newSize);
     if (ptr == NULL) {
-        freeAll();
+        freeGame(g);
         exit(1);
     }
     return ptr;
@@ -49,13 +49,13 @@ int getInt(const char* prompt) {
     return output;
 }
 
-char *getString(const char* prompt) {
+char *getString(const char* prompt, GameState *g) {
     // prompt user
     printf("%s", prompt);
 
     // dynamically read string from stdin until newline
     size_t currentLen = 0, capacity = BASE_STR_LEN;
-    char *str = safeMalloc(capacity * sizeof(char)), newChar ;
+    char *str = safeMalloc(capacity * sizeof(char), g), newChar ;
     
     // skip leading newlines if any
     do {
@@ -70,7 +70,7 @@ char *getString(const char* prompt) {
         // check if need to expand str
         if (currentLen >= capacity) {
             capacity *= 2;
-            str = safeRealloc(str, capacity * sizeof(char));
+            str = safeRealloc(str, capacity * sizeof(char), g);
         }
         newChar = safeGetChar();
     } 
@@ -342,7 +342,7 @@ void displayMap(GameState* g) {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (grid[i][j] != -1) printf("[%2d]", grid[i][j]);
-            else printf("\t");
+            else printf("    ");
         }
         printf("\n");
     }

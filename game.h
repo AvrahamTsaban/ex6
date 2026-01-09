@@ -52,6 +52,6 @@ typedef struct {
 
 // Game functions
 void playGame(GameState* g);
-
+void freeGame(GameState* g);
 
 #endif

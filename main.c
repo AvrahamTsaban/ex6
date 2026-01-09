@@ -4,10 +4,12 @@
 #include "utils.h"
 #include "bst.h"
 
-void addRoom(GameState* g);
-void initPlayer(GameState* g);
-void freeGame(GameState* g);
 typedef void (*ActionFunc)(GameState*);
+
+static void addRoom(GameState* g);
+static void initPlayer(GameState* g);
+static Monster *getMonster(GameState *g);
+static Item *getItem(GameState *g);
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
@@ -40,7 +42,7 @@ static void addRoom(GameState* g) {
     }
 
     // create new room and zero irrelevant fields
-    Room *newRoom = safeMalloc(sizeof(Room));
+    Room *newRoom = safeMalloc(sizeof(Room), g);
     newRoom->visited = 0;
     newRoom->next = NULL;
 
@@ -93,8 +95,8 @@ static void addRoom(GameState* g) {
     }
 
     // set monster and item for new room
-    newRoom->monster = getMonster();
-    newRoom->item = getItem();
+    newRoom->monster = getMonster(g);
+    newRoom->item = getItem(g);
 
     // assign ID, increase room count by 1 and add new room to game state's rooms list
     newRoom->id = ++(g->roomCount);
@@ -112,15 +114,15 @@ static void addRoom(GameState* g) {
     printf("Created room %d at (%d,%d)\n", newRoom->id, newRoom->x, newRoom->y);
 }
 
-static Monster *getMonster() {
+static Monster *getMonster(GameState *g) {
     // ask user if they want to add a monster
     int hasMonster = getInt("Add monster? (1=Yes, 0=No): ");
     Monster *monster = NULL;
 
     // if yes, create new monster and get its details from user
     if (hasMonster) {
-        monster = safeMalloc(sizeof(Monster));
-        monster->name = getString("Monster name: ");
+        monster = safeMalloc(sizeof(Monster), g);
+        monster->name = getString("Monster name: ", g);
         monster->type = getInt("Type (0-4): ");
         monster->maxHp = getInt("HP: ");
         monster->hp = monster->maxHp;
@@ -131,15 +133,15 @@ static Monster *getMonster() {
     return monster;
 }
 
-static Item *getItem() {
+static Item *getItem(GameState *g) {
     // ask user if they want to add an item
     int hasItem = getInt("Add item? (1=Yes, 0=No): ");
     Item *item = NULL;
 
     // if yes, create new item and get its details from user
     if (hasItem) {
-        item = safeMalloc(sizeof(Item));
-        item->name = getString("Item name: ");
+        item = safeMalloc(sizeof(Item), g);
+        item->name = getString("Item name: ", g);
         item->type = getInt("Type (0=Armor, 1=Sword): ");
         item->value = getInt("Value: ");
     }
@@ -156,7 +158,7 @@ static void initPlayer(GameState* g) {
 
     // initialize player only if not already done
     if (g->player == NULL) {
-        Player *player = safeMalloc(sizeof(Player));
+        Player *player = safeMalloc(sizeof(Player), g);
         player->bag = createBST(compareItems, printItem, freeItem);
         player->defeatedMonsters = createBST(compareMonsters, printMonster, freeMonster);
         player->maxHp = g->configMaxHp;
@@ -166,48 +168,5 @@ static void initPlayer(GameState* g) {
         
         g->player = player;
     }
-}
-
-static void freeGame(GameState* g) {
-    // free player and its BSTs, then rooms list
-    if (g == NULL) {
-        return;
-    }
-
-    if (g->player != NULL) {
-        if (g->player->bag != NULL) {
-            bstFree(g->player->bag->root, g->player->bag->freeData);
-            free(g->player->bag);
-        }
-        if (g->player->defeatedMonsters != NULL) {
-            bstFree(g->player->defeatedMonsters->root, g->player->defeatedMonsters->freeData);
-            free(g->player->defeatedMonsters);
-        }
-        free(g->player);
-    }
-
-    Room *tmp, *iter = g->rooms;
-    while (iter != NULL) {
-        tmp = iter;
-        iter = iter->next;
-        freeRoom(tmp);
-    }
-}
-
-static void freeRoom(Room* r) {
-    // free monster and item in room, then room itself
-    if (r == NULL) {
-        return;
-    }
-
-    if (r->monster != NULL) {
-        freeMonster(r->monster);
-    }
-
-    if (r->item != NULL) {
-        freeItem(r->item);
-    }
-
-    free(r);
 }
 
