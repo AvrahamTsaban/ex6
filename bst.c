@@ -1,13 +1,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include "bst.h"
+#include "game.h"
+#include "utils.h"
+
 
 /* this file implements a binary search tree (BST) with generic data storage. 
 Type-specific implementations are implemented in utils.c, and provided as function pointers to the BST functions. */
 
 BST* createBST(int (*cmp)(void*, void*), void (*print)(void*), void (*freeData)(void*)) {
     // allocate memory for BST structure and set its fields
-    BST *bst = safeMalloc(sizeof(BST));
+    BST *bst = malloc(sizeof(BST));
+    if (bst == NULL) {
+        return NULL;
+    }
     bst->root = NULL;
     bst->compare = cmp;
     bst->print = print;
@@ -16,28 +22,45 @@ BST* createBST(int (*cmp)(void*, void*), void (*print)(void*), void (*freeData)(
     return bst;
 }
 
-BSTNode* bstInsert(BSTNode* root, void* data, int (*cmp)(void*, void*)) {
-    // base case: empty tree, insert here
+static void initNode(BSTNode* root, void* data) {
+    // initialize BSTNode fields
     if (root == NULL) {
-        root = safeMalloc(sizeof(BSTNode));
-        root->data = data;
-        root->left = NULL;
-        root->right = NULL;
-        return root;
+        return;
     }
 
-    // soft failure: if reaching a node with NULL data, insert here
-    if (root->data == NULL) {
-        root->data = data;
-        return root;
+    root->data = data;
+    root->left = NULL;
+    root->right = NULL;
+}
+
+BSTNode* bstInsert(BSTNode** root, void* data, int (*cmp)(void*, void*)) {
+    // check for null pointers: will be be treated as existing node, for non-insertion
+    if (root == NULL || data == NULL || cmp == NULL) {
+        return NULL;
+    }
+
+    // base case: empty tree, insert here
+    if (*root == NULL) {
+        *root = malloc(sizeof(BSTNode));
+        if (*root == NULL) {
+            return NULL;
+        }
+        initNode(*root, data);
+        return *root;
+    }
+
+    // soft failure: if reaching a node with NULL data, take over
+    if ((*root)->data == NULL) {
+        initNode(*root, data);
+        return *root;
     }
 
     // recursive case: traverse the tree
-    int result = cmp(data, root->data);
+    int result = cmp(data, (*root)->data);
     if (result < 0) {
-        return bstInsert(root->left, data, cmp);
+        return bstInsert(&((*root)->left), data, cmp);
     } else if (result > 0) {
-        return bstInsert(root->right, data, cmp);
+        return bstInsert(&((*root)->right), data, cmp);
     } else {
         // data == root->data; do not insert. NULL pointer indicates caller should free data
         return NULL;
@@ -63,7 +86,7 @@ void* bstFind(BSTNode* root, void* data, int (*cmp)(void*, void*)) {
         return bstFind(root->right, data, cmp);
     } else {
         // base case 2: data == root->data; return data
-        return root;
+        return root->data;
     }     
 }
 
@@ -112,5 +135,8 @@ void bstFree(BSTNode* root, void (*freeData)(void*)) {
     // recursive case: traverse the tree (post-order) freeing nodes
     bstFree(root->left, freeData);
     bstFree(root->right, freeData);
-    freeData(root->data);
+    if (root->data != NULL) {
+        freeData(root->data);
+    }
+    free(root);
 }

@@ -1,15 +1,17 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "bst.h"
-
 #define EXISTS 'V'
 #define N_EXISTS 'X'
 
-typedef enum { ARMOR, SWORD } ItemType;
-typedef enum { PHANTOM, SPIDER, DEMON, GOLEM, COBRA } MonsterType;
-typedef enum { UP, DOWN, LEFT, RIGHT} Direction;
-typedef enum { FALSE, TRUE} Bool;
+typedef enum ItemType { ARMOR, SWORD } ItemType;
+typedef enum MonsterType { PHANTOM, SPIDER, DEMON, GOLEM, COBRA } MonsterType;
+typedef enum Direction { UP, DOWN, LEFT, RIGHT } Direction;
+typedef enum Bool { FALSE, TRUE } Bool;
+
+#ifndef BST_H
+typedef struct BST BST;
+#endif
 
 typedef struct Item {
     char* name;
@@ -43,7 +45,7 @@ typedef struct Player {
     Room* currentRoom;
 } Player;
 
-typedef struct {
+typedef struct GameState {
     Room* rooms;
     Player* player;
     int roomCount;
@@ -51,7 +53,7 @@ typedef struct {
     int configBaseAttack;
 } GameState;
 
-typedef struct {
+typedef struct Coordinates {
     int x;
     int y;
 } Coordinates;
@@ -59,5 +61,20 @@ typedef struct {
 // Game functions
 void playGame(GameState* g);
 void freeGame(GameState* g);
+
+// Memory management functions
+void *safeRealloc(void *ptr, size_t newSize, GameState *g);
+void *safeMalloc(size_t newSize, GameState *g);
+Direction getDir();
+ItemType getItemType();
+MonsterType getMonsterType();
+
+// rooms and map functions
+Room *findByCoordinates(Coordinates coords, GameState *g);
+Room *findByID(int id, GameState *g);
+void displayMap(GameState* g);
+void roomLegend(GameState* g);
+void moveCoords(Coordinates *coord, Direction dir);
+
 
 #endif

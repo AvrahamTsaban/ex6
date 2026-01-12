@@ -1,40 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "utils.h"
 #include "game.h"
+#include "utils.h"
 
 
-// todo: get all getInt to enum calls to adjusted funcs like getDir and maybe make getint static
+static char safeGetChar();
 
-
-
-void *safeRealloc(void *ptr, size_t newSize, GameState* g) {
-// reallocate memory and exit program if allocation fails (frees ptr if newSize is 0)
-    if (newSize == 0) {
-        // making some undefined compiler behaviour well-defined
-        free(ptr);
-        return ptr;
-    }
-
+void *semiSafeRealloc(void *ptr, size_t newSize) {
+// reallocate memory and exit program if allocation fails
     void *newPtr = realloc(ptr, newSize);
     if (!newPtr) {
         free(ptr);
-        freeGame(g);
-        exit(1);
+        return NULL;
     }
-
     return newPtr;
-}
-
-void *safeMalloc(size_t newSize, GameState* g) {
-// allocate memory and exit program if allocation fails
-    void *ptr = malloc(newSize);
-    if (ptr == NULL) {
-        freeGame(g);
-        exit(1);
-    }
-    return ptr;
 }
 
 int getInt(const char* prompt) {
@@ -43,23 +23,29 @@ int getInt(const char* prompt) {
 
     // read integer from stdin with error checking
     int scan_result = 0, output = 0;
+    scan_result = scanf(" %d", &output);
     while (scan_result != 1) {
+        printf("Invalid input: ");
+        while (getchar() != '\n') {
+            continue;
+        }
         scan_result = scanf(" %d", &output);
-    }
-    while (getchar() != '\n') {
-        continue;
     }
 
     return output;
 }
 
-char *getString(const char* prompt, GameState *g) {
+char *getString(const char* prompt) {
     // prompt user
     printf("%s", prompt);
 
     // dynamically read string from stdin until newline
     size_t currentLen = 0, capacity = BASE_STR_LEN;
-    char *str = safeMalloc(capacity * sizeof(char), g), newChar ;
+    char *str = malloc((size_t)capacity * sizeof(char));
+    char newChar;
+    if (str == NULL) {
+        return NULL;
+    }
     
     // skip leading newlines if any
     do {
@@ -74,7 +60,10 @@ char *getString(const char* prompt, GameState *g) {
         // check if need to expand str
         if (currentLen >= capacity) {
             capacity *= 2;
-            str = safeRealloc(str, capacity * sizeof(char), g);
+            str = semiSafeRealloc(str, capacity * sizeof(char));
+            if (str == NULL) {
+                return NULL;
+            }
         }
         newChar = safeGetChar();
     } 
@@ -92,19 +81,6 @@ static char safeGetChar() {
     } else {
         return (char)inp;
     }
-}
-
-Direction getDir () {
-    Direction dir;
-    do {
-        int dirInt = getInt("Direction (0=Up,1=Down,2=Left,3=Right): "); 
-        if (dirInt < 0 || dirInt > 3) {
-            printf("Invalid direction\n");
-            continue;
-        }
-        dir = (Direction)dirInt;
-    } while (dir < 0 || dir > 3);
-    return dir;
 }
 
 /**********
@@ -163,7 +139,7 @@ int compareMonsters(void* ptrA, void* ptrB) {
         return cmp;
     }
 
-    cmp = itemA->type - itemB->type;
+    cmp = (int)itemA->type - (int)itemB->type;
     return cmp;
 }
 
@@ -202,7 +178,7 @@ void printMonster(void* data) {
     }
 
     // print monster details
-    printf("[%s] Type: %s, Attack: %d, HP: %d\n", toPrint->name, typeStr, toPrint->attack, toPrint->maxHp);
+    printf("\t[%s] Type: %s, Attack: %d, HP: %d\n", toPrint->name, typeStr, toPrint->attack, toPrint->maxHp);
 }
 
 void freeItem(void* data) {
@@ -248,7 +224,7 @@ int compareItems(void* ptrA, void* ptrB) {
         return cmp;
     }
 
-    cmp = itemA->type - itemB->type;
+    cmp = (int)itemA->type - (int)itemB->type;
     return cmp;
 }
 
@@ -278,130 +254,7 @@ void printItem(void* data) {
     }
 
     // print item details
-    printf("[%s] %s - Value: %d\n", typeStr, toPrint->name,  toPrint->value);
+    printf("\t[%s] %s - Value: %d\n", typeStr, toPrint->name,  toPrint->value);
 }
 
-/**********
-***Rooms***
-**search***
-**********/
 
-Room *findByID(int id, GameState *g) {
-    // check for null game state or empty rooms list
-    if (g == NULL || g->rooms == NULL) {
-        return NULL;
-    }
-
-    // search for room with given id in game state g
-    Room *iter = g->rooms;
-    while (iter->next != NULL) {
-        if (iter->id == id) {
-            return iter;
-        }
-        iter = iter->next;
-    }
-
-    return NULL;
-}
-
-Room *findByCoordinates(Coordinates coords, GameState *g) {
-    // check for null game state or empty rooms list
-    if (g == NULL || g->rooms == NULL) {
-        return NULL;
-    }
-
-    // search for room with same coordinates as coords in game state g
-    Room *iter = g->rooms;
-    while (iter->next != NULL) {
-        if (iter->x == coords.x && iter->y == coords.y) {
-            return iter;
-        }
-        iter = iter->next;
-    }
-    
-    return NULL; 
-}
-
-void moveCoords(Coordinates *coord, Direction dir) {
-    // move coordinates in given direction
-    switch (dir) {
-        case UP:
-            coord->y = coord->y - 1;
-            break;
-        case DOWN:
-            coord->y = coord->y + 1;
-            break;
-        case LEFT:
-            coord->x = coord->x - 1;
-            break;
-        case RIGHT:
-            coord->x = coord->x + 1;
-            break;
-        default:
-            // undefined behaviour, change nothing
-            return;
-        }
-}
-
-/**********
-****Map****
-**Helpers**
-**********/
-
-void displayMap(GameState* g) {
-    // check for empty rooms list
-    if (!g->rooms) return;
-    
-    // Find bounds
-    int minX = 0, maxX = 0, minY = 0, maxY = 0;
-    for (Room* r = g->rooms; r; r = r->next) {
-        if (r->x < minX) minX = r->x;
-        if (r->x > maxX) maxX = r->x;
-        if (r->y < minY) minY = r->y;
-        if (r->y > maxY) maxY = r->y;
-    }
-    
-    int width = maxX - minX + 1;
-    int height = maxY - minY + 1;
-    
-    // Create grid
-    int** grid = malloc(height * sizeof(int*));
-    for (int i = 0; i < height; i++) {
-        grid[i] = malloc(width * sizeof(int));
-        for (int j = 0; j < width; j++) grid[i][j] = -1;
-    }
-    
-    // fill grid with room ids
-    for (Room* r = g->rooms; r; r = r->next)
-        grid[r->y - minY][r->x - minX] = r->id;
-    
-    // print grid
-    printf("=== SPATIAL MAP ===\n");
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (grid[i][j] != -1) printf("[%2d]", grid[i][j]);
-            else printf("    ");
-        }
-        printf("\n");
-    }
-    
-    // free grid
-    for (int i = 0; i < height; i++) free(grid[i]);
-    free(grid);
-}
-
-void roomLegend(GameState* g) {
-    // check for empty rooms list
-    if (!g->rooms) return;
-
-    // print legend for rooms in game state g
-    printf("=== ROOM LEGEND ===\n");
-
-    int i = 0;
-    for (Room *iter = g->rooms; iter != NULL; iter = iter->next) {
-        printf("ID %d: [M:%c] [I:%c]", ++i, iter->monster ? EXISTS : N_EXISTS, iter->item ? EXISTS : N_EXISTS);
-    }
-
-    printf("===================\n");
-
-}

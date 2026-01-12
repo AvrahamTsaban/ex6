@@ -2,13 +2,16 @@
 #define UTILS_H
 #define BASE_STR_LEN 8
 
+#ifndef GAME_H
+typedef struct Monster Monster;
+typedef struct Item Item;
+#endif
 
 // I/O and memory
 int getInt(const char* prompt);
-char* getString(const char* prompt, GameState *g);
-void *safeRealloc(void *ptr, size_t newSize, GameState *g);
-void *safeMalloc(size_t newSize, GameState *g);
-Direction getDir ();
+char* getString(const char* prompt);
+void *semiSafeRealloc(void *ptr, size_t newSize);
+
 
 // Monster functions
 void freeMonster(void* data);
@@ -20,12 +23,7 @@ void freeItem(void* data);
 int compareItems(void* a, void* b);
 void printItem(void* data);
 
-// rooms and map functions
-Room *findByCoordinates(Coordinates coords, GameState *g);
-Room *findByID(int id, GameState *g);
-void displayMap(GameState* g);
-void roomLegend(GameState* g);
-void moveCoords(Coordinates *coord, Direction dir);
+
 
 
 #endif
