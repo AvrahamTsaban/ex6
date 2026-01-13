@@ -2,7 +2,6 @@
 #include <string.h>
 #include "bst.h"
 #include "game.h"
-#include "utils.h"
 
 
 /* this file implements a binary search tree (BST) with generic data storage. 
@@ -10,7 +9,7 @@ Type-specific implementations are implemented in utils.c, and provided as functi
 
 BST* createBST(int (*cmp)(void*, void*), void (*print)(void*), void (*freeData)(void*)) {
     // allocate memory for BST structure and set its fields
-    BST *bst = malloc(sizeof(BST));
+    BST *bst = (BST*)malloc(sizeof(BST));
     if (bst == NULL) {
         return NULL;
     }
@@ -41,7 +40,7 @@ BSTNode* bstInsert(BSTNode** root, void* data, int (*cmp)(void*, void*)) {
 
     // base case: empty tree, insert here
     if (*root == NULL) {
-        *root = malloc(sizeof(BSTNode));
+        *root = (BSTNode*)malloc(sizeof(BSTNode));
         if (*root == NULL) {
             return NULL;
         }

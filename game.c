@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "bst.h"
 #include "game.h"
 #include "utils.h"
 
-// הצלחתי ליצור פעמיים חדר מימין לאפס, ראה טרמינל. בנוסף צריך להפוך את הסדר של החדרים...
-
+// check all list printers 
 
 static void move(GameState* g);
 static void fight(GameState* g);
@@ -157,16 +155,22 @@ static Bool battleLoop(Player *player, Monster *monster) {
     }
     
     // Let the young men arise and play before us!
-    Bool isYourTurn = 1;
+    Bool isYourTurn = TRUE;
     while (player->hp > 0 && monster->hp >0) {
         if (isYourTurn) {
             monster->hp -= player->baseAttack;
+            if (monster->hp <= 0) {
+                monster->hp = 0;
+            }
             printf("You deal %d damage. Monster HP: %d\n", player->baseAttack, monster->hp);
         } else {
             player->hp -= monster->attack;
+            if (player->hp < 0) {
+                player->hp = 0;
+            }
             printf("Monster deals %d damage. Your HP: %d\n", monster->attack, player->hp);
         }
-        isYourTurn = !isYourTurn;
+        isYourTurn = (Bool)!isYourTurn;
     }
 
     // determine victor and return
@@ -310,25 +314,6 @@ static void checkVictory(GameState* g) {
 **Helpers**
 **********/
 
-
-void *safeRealloc(void *ptr, size_t newSize, GameState* g) {
-// reallocate memory and exit program if allocation fails (frees ptr if newSize is 0)
-    if (newSize == 0) {
-        // making some undefined compiler behaviour well-defined
-        free(ptr);
-        return NULL;
-    }
-
-    void *newPtr = realloc(ptr, newSize);
-    if (!newPtr) {
-        free(ptr);
-        freeGame(g);
-        exit(1);
-    }
-
-    return newPtr;
-}
-
 void *safeMalloc(size_t newSize, GameState* g) {
 // allocate memory and exit program if allocation fails
     void *ptr = malloc(newSize);
@@ -385,21 +370,18 @@ MonsterType getMonsterType() {
 **********/
 
 Room *findByID(int id, GameState *g) {
-    // check for null game state or empty rooms list
-    if (g == NULL || g->rooms == NULL) {
+    // check for null game state
+    if (g == NULL) {
         return NULL;
     }
 
     // search for room with given id in game state g
     Room *iter = g->rooms;
-    while (iter != NULL) {
-        if (iter->id == id) {
-            return iter;
-        }
+    while (iter != NULL && iter->id != id) {
         iter = iter->next;
     }
 
-    return NULL;
+    return iter;
 }
 
 Room *findByCoordinates(Coordinates coords, GameState *g) {
@@ -432,9 +414,6 @@ void moveCoords(Coordinates *coord, Direction dir) {
         case RIGHT:
             coord->x = coord->x + 1;
             break;
-        default:
-            // undefined behaviour, change nothing
-            return;
         }
 }
 
@@ -460,9 +439,9 @@ void displayMap(GameState* g) {
     int height = maxY - minY + 1;
     
     // Create grid
-    int** grid = malloc((size_t)height * sizeof(int*));
+    int** grid = (int**)malloc((size_t)height * sizeof(int*));
     for (int i = 0; i < height; i++) {
-        grid[i] = malloc((size_t)width * sizeof(int));
+        grid[i] = (int*)malloc((size_t)width * sizeof(int));
         for (int j = 0; j < width; j++) grid[i][j] = -1;
     }
     
@@ -492,11 +471,11 @@ void roomLegend(GameState* g) {
     // print legend for rooms in game state g
     printf("=== ROOM LEGEND ===\n");
 
-    int i = 0;
     for (Room *iter = g->rooms; iter != NULL; iter = iter->next) {
-        printf("ID %d: [M:%c] [I:%c]\n", i++, iter->monster ? EXISTS : N_EXISTS, iter->item ? EXISTS : N_EXISTS);
+        printf("ID %d: [M:%c] [I:%c]\n", iter->id, iter->monster ? EXISTS : N_EXISTS, iter->item ? EXISTS : N_EXISTS);
     }
 
     printf("===================\n");
 
 }
+

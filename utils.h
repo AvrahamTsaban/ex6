@@ -2,11 +2,6 @@
 #define UTILS_H
 #define BASE_STR_LEN 8
 
-#ifndef GAME_H
-typedef struct Monster Monster;
-typedef struct Item Item;
-#endif
-
 // I/O and memory
 int getInt(const char* prompt);
 char* getString(const char* prompt);

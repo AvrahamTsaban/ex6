@@ -41,7 +41,7 @@ char *getString(const char* prompt) {
 
     // dynamically read string from stdin until newline
     size_t currentLen = 0, capacity = BASE_STR_LEN;
-    char *str = malloc((size_t)capacity * sizeof(char));
+    char *str = (char*)malloc((size_t)capacity * sizeof(char));
     char newChar;
     if (str == NULL) {
         return NULL;
@@ -60,7 +60,7 @@ char *getString(const char* prompt) {
         // check if need to expand str
         if (currentLen >= capacity) {
             capacity *= 2;
-            str = semiSafeRealloc(str, capacity * sizeof(char));
+            str = (char*)semiSafeRealloc(str, capacity * sizeof(char));
             if (str == NULL) {
                 return NULL;
             }
@@ -246,10 +246,10 @@ void printItem(void* data) {
     char typeStr[BASE_STR_LEN];
     switch (toPrint->type) {
         case ARMOR:
-            strcpy(typeStr, "Armor");
+            strcpy(typeStr, "ARMOR");
             break;
         case SWORD:
-            strcpy(typeStr, "Sword");
+            strcpy(typeStr, "SWORD");
             break;
     }
 

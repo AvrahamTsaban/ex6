@@ -1,0 +1,20 @@
+CC = clang
+CFLAGS = -std=c99 -Weverything -Werror -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-c++11-compat -Wno-c++14-compat -Wno-c++17-compat -Wno-c++20-compat -Wno-c++23-compat -Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded -Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default -Wno-strict-prototypes -Wno-missing-prototypes -Wno-unsafe-buffer-usage -Wno-used-but-marked-unused -Og -g -fstack-protector-strong -D_FORTIFY_SOURCE=3
+
+# -Wno-used-but-marked-unused -Og -g are not for release; -Wno-strict-prototypes & -Wno-missing-prototypes may be added after course; -Wno-switch-default is interchangable with -Wno-covered-switch-default
+
+SRCS = main.c game.c bst.c utils.c
+OBJS = $(SRCS:.c=.o)
+
+TARGET = program
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
+
+clean:
+	rm -f $(OBJS) $(TARGET)

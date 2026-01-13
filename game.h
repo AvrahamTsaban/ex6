@@ -9,9 +9,7 @@ typedef enum MonsterType { PHANTOM, SPIDER, DEMON, GOLEM, COBRA } MonsterType;
 typedef enum Direction { UP, DOWN, LEFT, RIGHT } Direction;
 typedef enum Bool { FALSE, TRUE } Bool;
 
-#ifndef BST_H
-typedef struct BST BST;
-#endif
+#include "bst.h"
 
 typedef struct Item {
     char* name;

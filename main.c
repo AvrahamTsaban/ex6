@@ -41,9 +41,8 @@ static void addRoom(GameState* g) {
     }
 
     // create new room and zero irrelevant fields
-    Room *newRoom = safeMalloc(sizeof(Room), g);
+    Room *newRoom = (Room*)safeMalloc(sizeof(Room), g);
     newRoom->visited = 0;
-    newRoom->next = NULL;
 
     // set room coordinates and ID
     if (g->roomCount == 0) {
@@ -89,12 +88,10 @@ static void addRoom(GameState* g) {
     // add new room to game state's rooms list
     if (g->rooms == NULL) {
         g->rooms = newRoom;
+        newRoom->next = NULL;
     } else {
-        Room *iter = g->rooms;
-        while (iter->next != NULL) {
-            iter = iter->next;
-        }
-        iter->next = newRoom;
+        newRoom->next = g->rooms;
+        g->rooms = newRoom;
     }
 
     // confirm room creation
@@ -108,7 +105,7 @@ static Monster *getMonster(GameState *g) {
 
     // if yes, create new monster and get its details from user
     if (hasMonster) {
-        monster = safeMalloc(sizeof(Monster), g);
+        monster = (Monster*)safeMalloc(sizeof(Monster), g);
         monster->name = getString("Monster name: ");
         if (monster->name == NULL) {
             free(monster);
@@ -131,7 +128,7 @@ static Item *getItem(GameState *g) {
 
     // if yes, create new item and get its details from user
     if (hasItem) {
-        item = safeMalloc(sizeof(Item), g);
+        item = (Item*)safeMalloc(sizeof(Item), g);
         item->name = getString("Item name: ");
         if (item->name == NULL) {
             free(item);
@@ -158,7 +155,7 @@ static void initPlayer(GameState* g) {
 
     // initialize player only if not already done
     if (g->player == NULL) {
-        Player *player = safeMalloc(sizeof(Player), g);
+        Player *player = (Player*)safeMalloc(sizeof(Player), g);
         player->bag = createBST(compareItems, printItem, freeItem);
         if (player->bag == NULL) {
             free(player);
@@ -175,6 +172,7 @@ static void initPlayer(GameState* g) {
         player->hp = player->maxHp;
         player->baseAttack = g->configBaseAttack;
         player->currentRoom = findByID(0, g);
+        player->currentRoom->visited = 1;
         
         g->player = player;
     }
