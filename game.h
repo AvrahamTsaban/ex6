@@ -61,11 +61,7 @@ void playGame(GameState* g);
 void freeGame(GameState* g);
 
 // Memory management functions
-void *safeRealloc(void *ptr, size_t newSize, GameState *g);
 void *safeMalloc(size_t newSize, GameState *g);
-Direction getDir();
-ItemType getItemType();
-MonsterType getMonsterType();
 
 // rooms and map functions
 Room *findByCoordinates(Coordinates coords, GameState *g);

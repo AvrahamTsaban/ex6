@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "game.h"
 #include "utils.h"
+
+/* This file implements utility functions for the game, including input handling, memory management, and operations on Monsters and Items. */
 
 
 static char safeGetChar();
@@ -81,6 +82,52 @@ static char safeGetChar() {
     } else {
         return (char)inp;
     }
+}
+
+
+Direction getDir() {
+    // get valid direction from user
+    int dirInt;
+    do {
+        dirInt = getInt("Direction (0=Up,1=Down,2=Left,3=Right): "); 
+        if (dirInt < 0 || dirInt > 3) {
+            printf("Invalid direction\n");
+            continue;
+        }
+    } while (dirInt < 0 || dirInt > 3);
+
+    Direction dir = (Direction)dirInt;
+    return dir;
+}
+
+ItemType getItemType() {
+    // get valid item type from user
+    int typeInt;
+    do {
+        typeInt = getInt("Type (0=Armor, 1=Sword): "); 
+        if (typeInt < 0 || typeInt > 1) {
+            printf("Invalid item type\n");
+            continue;
+        }
+    } while (typeInt < 0 || typeInt > 1);
+
+    ItemType type = (ItemType)typeInt;
+    return type;
+}
+
+MonsterType getMonsterType() {
+    // get valid monster type from user
+    int typeInt;
+    do {
+        typeInt = getInt("Type (0-4): "); 
+        if (typeInt < 0 || typeInt > 4) {
+            printf("Invalid monster type\n");
+            continue;
+        }
+    } while (typeInt < 0 || typeInt > 4);
+    
+    MonsterType type = (MonsterType)typeInt;
+    return type;
 }
 
 /**********

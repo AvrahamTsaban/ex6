@@ -4,8 +4,6 @@
 #include "game.h"
 #include "utils.h"
 
-// check all list printers 
-
 static void move(GameState* g);
 static void fight(GameState* g);
 static Bool battleLoop(Player *player, Monster *monster);
@@ -16,6 +14,7 @@ static void viewBag(GameState* g);
 static void viewDefeated(GameState* g);
 
 void playGame(GameState* g) {
+    // check for valid game state and player
     if (g == NULL) {
         return;
     }
@@ -28,6 +27,8 @@ void playGame(GameState* g) {
     int choice;
     do {
         Room *room = g->player->currentRoom;
+
+        // display game, player and room info
         displayMap(g);
         roomLegend(g);
         printf("\n--- Room %d ---\n", room->id);
@@ -38,6 +39,8 @@ void playGame(GameState* g) {
             printf("Item: %s\n", room->item->name);
         }
         printf("HP: %d/%d\n", g->player->hp, g->player->maxHp);
+
+        // get player choice and execute action
         choice = 0;
         choice = getInt("1.Move 2.Fight 3.Pickup 4.Bag 5.Defeated 6.Quit\n");
         if (room->monster != NULL && (choice == 1 || choice == 3)) {
@@ -85,6 +88,7 @@ static void move(GameState* g) {
         return;
     }
 
+    // find target room and move player there if it exists
     Room *targetRoom = findByCoordinates(coords, g);
     if (targetRoom == NULL) {
         printf("No room there\n");
@@ -202,6 +206,11 @@ static void pickup(GameState* g) {
 }
 
 static void viewBag(GameState* g) {
+    // display items in player's bag in chosen order
+    if (g == NULL || g->player == NULL) {
+        return;
+    }
+    
     BST *tree = g->player->bag;
     printf("=== INVENTORY ===\n");
     if (tree->root == NULL) {
@@ -226,6 +235,11 @@ static void viewBag(GameState* g) {
 }
 
 static void viewDefeated(GameState* g) {
+    // display defeated monsters in chosen order
+    if (g == NULL || g->player == NULL) {
+        return;
+    }
+
     BST *tree = g->player->defeatedMonsters;
     printf("=== DEFEATED MONSTERS ===\n");
     if (tree->root == NULL) {
@@ -311,7 +325,7 @@ static void checkVictory(GameState* g) {
 }
 
 /**********
-**Helpers**
+**Memory**
 **********/
 
 void *safeMalloc(size_t newSize, GameState* g) {
@@ -322,46 +336,6 @@ void *safeMalloc(size_t newSize, GameState* g) {
         exit(1);
     }
     return ptr;
-}
-
-
-Direction getDir() {
-    int dirInt;
-    do {
-        dirInt = getInt("Direction (0=Up,1=Down,2=Left,3=Right): "); 
-        if (dirInt < 0 || dirInt > 3) {
-            printf("Invalid direction\n");
-            continue;
-        }
-    } while (dirInt < 0 || dirInt > 3);
-    Direction dir = (Direction)dirInt;
-    return dir;
-}
-
-ItemType getItemType() {
-    int typeInt;
-    do {
-        typeInt = getInt("Type (0=Armor, 1=Sword): "); 
-        if (typeInt < 0 || typeInt > 1) {
-            printf("Invalid item type\n");
-            continue;
-        }
-    } while (typeInt < 0 || typeInt > 1);
-    ItemType type = (ItemType)typeInt;
-    return type;
-}
-
-MonsterType getMonsterType() {
-    int typeInt;
-    do {
-        typeInt = getInt("Type (0-4): "); 
-        if (typeInt < 0 || typeInt > 4) {
-            printf("Invalid monster type\n");
-            continue;
-        }
-    } while (typeInt < 0 || typeInt > 4);
-    MonsterType type = (MonsterType)typeInt;
-    return type;
 }
 
 /**********

@@ -1,3 +1,10 @@
+/*******
+ * Name: Avraham Tsaban
+ * ID: 207088733
+ * assignment: 6
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "bst.h"
@@ -153,28 +160,31 @@ static void initPlayer(GameState* g) {
         return;
     }
 
-    // initialize player only if not already done
-    if (g->player == NULL) {
-        Player *player = (Player*)safeMalloc(sizeof(Player), g);
-        player->bag = createBST(compareItems, printItem, freeItem);
-        if (player->bag == NULL) {
-            free(player);
-            return;
-        }
-        player->defeatedMonsters = createBST(compareMonsters, printMonster, freeMonster);
-        if (player->defeatedMonsters == NULL) {
-            bstFree(player->bag->root, player->bag->freeData);
-            free(player->bag);
-            free(player);
-            return;
-        }
-        player->maxHp = g->configMaxHp;
-        player->hp = player->maxHp;
-        player->baseAttack = g->configBaseAttack;
-        player->currentRoom = findByID(0, g);
-        player->currentRoom->visited = 1;
-        
-        g->player = player;
+    if (g->player != NULL) {
+        printf("Player exists\n");
+        return;
     }
+
+    // initialize player only if not already done
+    Player *player = (Player*)safeMalloc(sizeof(Player), g);
+    player->bag = createBST(compareItems, printItem, freeItem);
+    if (player->bag == NULL) {
+        free(player);
+        return;
+    }
+    player->defeatedMonsters = createBST(compareMonsters, printMonster, freeMonster);
+    if (player->defeatedMonsters == NULL) {
+        bstFree(player->bag->root, player->bag->freeData);
+        free(player->bag);
+        free(player);
+        return;
+    }
+    player->maxHp = g->configMaxHp;
+    player->hp = player->maxHp;
+    player->baseAttack = g->configBaseAttack;
+    player->currentRoom = findByID(0, g);
+    player->currentRoom->visited = 1;
+    
+    g->player = player;
 }
 
