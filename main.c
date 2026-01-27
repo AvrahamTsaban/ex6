@@ -1,10 +1,3 @@
-/*******
- * Name: Avraham Tsaban
- * ID: 207088733
- * assignment: 6
- */
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "bst.h"
