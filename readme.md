@@ -87,16 +87,19 @@ make clean
 
 ### Using Make with Clang
 
-An alternative Makefile is provided for Clang compilation with extensive warning coverage:
+An alternative Makefile is provided for Clang compilation with strict warnings and hardening flags:
 
 ```bash
 make -f Makefile.clang
 ```
 
 **Compiler flags used:**
-- `-std=c99` - Use C99 standard
+- `-std=c2y` - Use the C2y standard (see Makefile.clang comment for C99 switch)
 - `-Weverything -Werror` - Enable all Clang warnings and treat as errors
-- `-Og -g` - Debug optimization and symbols
+- `-Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded`
+- `-Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default`
+- `-Wno-unsafe-buffer-usage -Wno-used-but-marked-unused`
+- `-O3` - Optimization level
 - `-fstack-protector-strong` - Stack buffer overflow protection
 - `-D_FORTIFY_SOURCE=3` - Additional runtime security checks
 
@@ -124,16 +127,16 @@ gcc -Wall -Wextra -Werror -std=c99 -g -Wpedantic -Wshadow -Wformat=2 -Wconversio
 
 ### Direct Compilation with Clang
 
-**Basic compilation:**
+**Match Makefile.clang (strict warnings + hardening):**
 
 ```bash
-clang -Wall -Wextra -Werror -std=c99 -g main.c game.c bst.c utils.c -o program
+clang -std=c2y -Weverything -Werror -Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded -Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default -Wno-unsafe-buffer-usage -Wno-used-but-marked-unused -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=3 main.c game.c bst.c utils.c -o program
 ```
 
-**With strict warnings:**
+**Course-style C99 (per Makefile.clang note):**
 
 ```bash
-clang -std=c99 -Weverything -Werror -Wno-declaration-after-statement -Wno-padded -g main.c game.c bst.c utils.c -o program
+clang -std=c99 -Weverything -Werror -Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded -Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default -Wno-unsafe-buffer-usage -Wno-used-but-marked-unused -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=3 main.c game.c bst.c utils.c -o program
 ```
 
 ---
