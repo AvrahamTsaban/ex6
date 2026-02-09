@@ -6,7 +6,7 @@
 /* This file implements utility functions for the game, including input handling, memory management, and operations on Monsters and Items. */
 
 
-static char safeGetChar();
+static char safeGetChar(void);
 
 void *semiSafeRealloc(void *ptr, size_t newSize) {
 // reallocate memory and exit program if allocation fails
@@ -74,7 +74,7 @@ char *getString(const char* prompt) {
     return str;    
 }
 
-static char safeGetChar() {
+static char safeGetChar(void) {
     // get a character from stdin, returning '\n' on EOF or null character
     int inp = getchar();
     if (inp == EOF) {
@@ -85,7 +85,7 @@ static char safeGetChar() {
 }
 
 
-Direction getDir() {
+Direction getDir(void) {
     // get valid direction from user
     int dirInt;
     do {
@@ -100,7 +100,7 @@ Direction getDir() {
     return dir;
 }
 
-ItemType getItemType() {
+ItemType getItemType(void) {
     // get valid item type from user
     int typeInt;
     do {
@@ -115,7 +115,7 @@ ItemType getItemType() {
     return type;
 }
 
-MonsterType getMonsterType() {
+MonsterType getMonsterType(void) {
     // get valid monster type from user
     int typeInt;
     do {

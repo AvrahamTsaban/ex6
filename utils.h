@@ -7,9 +7,9 @@
 int getInt(const char* prompt);
 char* getString(const char* prompt);
 void *semiSafeRealloc(void *ptr, size_t newSize);
-Direction getDir();
-ItemType getItemType();
-MonsterType getMonsterType();
+Direction getDir(void);
+ItemType getItemType(void);
+MonsterType getMonsterType(void);
 
 // Monster functions
 void freeMonster(void* data);
