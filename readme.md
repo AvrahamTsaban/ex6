@@ -1,256 +1,190 @@
-# Exercise 6 - Text-Based RPG Dungeon Game
+# Exercise 6 — Text-Based RPG Dungeon Game
 
-A text-based role-playing game implemented in C, featuring room exploration, monster combat, item collection, and inventory management using Binary Search Trees (BST).
+## Overview
 
-## Table of Contents
+A text-based dungeon-crawling RPG implemented in C as a multi-file project. Players navigate connected rooms, fight monsters, collect items, and track progress using Binary Search Trees. The project covers BSTs, linked lists, function pointers, generic pointers, enums, and modular design.
 
-- [Description](#description)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Compilation Instructions](#compilation-instructions)
-  - [Using Make with GCC (Default)](#using-make-with-gcc-default)
-  - [Using Make with Clang](#using-make-with-clang)
-  - [Direct Compilation with GCC](#direct-compilation-with-gcc)
-  - [Direct Compilation with Clang](#direct-compilation-with-clang)
-- [Usage](#usage)
-- [Game Mechanics](#game-mechanics)
-- [Reference Implementation](#reference-implementation)
-- [License Disclosure](#license-disclosure)
+## Author
 
----
+Avraham Tsaban
 
-## Description
+## Compilation
 
-This program implements a dungeon-crawling RPG game where players navigate through connected rooms, fight monsters, collect items, and track their progress. The game uses a linked list for room management and binary search trees for inventory (bag) and defeated monsters tracking.
-
-## Features
-
-- **Room System**: Create and connect rooms in a 2D grid layout
-- **Combat System**: Turn-based combat with various monster types (Phantom, Spider, Demon, Golem, Cobra)
-- **Item System**: Collect armor and swords to enhance player stats
-- **Inventory Management**: BST-based bag system for collected items
-- **Monster Tracking**: BST-based system for tracking defeated monsters
-- **Map Display**: Visual representation of explored dungeon layout
-- **Victory Condition**: Visit all rooms and defeat all monsters
-
-## Project Structure
-
-```
-ex6/
-├── main.c          # Main entry point, menu system, room/player initialization
-├── game.c          # Core game logic, combat, movement, victory conditions
-├── game.h          # Game structures (Player, Room, Monster, Item, GameState)
-├── bst.c           # Binary Search Tree implementation
-├── bst.h           # BST interface definitions
-├── utils.c         # Utility functions for I/O and memory management
-├── utils.h         # Utility function declarations
-├── Makefile        # Default GCC build configuration
-├── Makefile.clang  # Alternative Clang build configuration
-├── ex6_linux       # Reference implementation binary (provided by TA)
-├── input.txt       # Sample input file
-├── output.txt      # Sample output file
-└── readme.md       # This documentation
-```
-
----
-
-## Compilation Instructions
-
-### Using Make with GCC (Default)
-
-The default Makefile uses GCC with strict warning flags:
+### Using Makefile (GCC — default)
 
 ```bash
 make
 ```
 
-Or explicitly:
+Uses GCC with strict warnings (`-Wall -Wextra -Werror -std=c99 -g`), additional pedantic flags, and `-Og` optimization for debugging.
 
 ```bash
-make -f Makefile
+make clean    # remove build artifacts
 ```
 
-**Compiler flags used:**
-- `-Wall -Wextra -Werror` - Enable all warnings and treat as errors
-- `-std=c99` - Use C99 standard
-- `-g` - Include debug symbols
-- `-Wpedantic -Wshadow -Wformat=2` - Additional strict warnings
-- `-Wstrict-overflow=2 -Wwrite-strings -Wcast-align -Wpointer-arith`
-- `-Wconversion` - Warn on implicit type conversions
-- `-Og` - Optimization level for debugging
-
-To clean build artifacts:
-
-```bash
-make clean
-```
-
-### Using Make with Clang
-
-An alternative Makefile is provided for Clang compilation with strict warnings and hardening flags:
+### Using Makefile.clang (Clang — alternative)
 
 ```bash
 make -f Makefile.clang
 ```
 
-**Compiler flags used:**
-- `-std=c2y` - Use the C2y standard (see Makefile.clang comment for C99 switch)
-- `-Weverything -Werror` - Enable all Clang warnings and treat as errors
-- `-Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded`
-- `-Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default`
-- `-Wno-unsafe-buffer-usage -Wno-used-but-marked-unused`
-- `-O3` - Optimization level
-- `-fstack-protector-strong` - Stack buffer overflow protection
-- `-D_FORTIFY_SOURCE=3` - Additional runtime security checks
-
-To clean:
+Uses Clang with `-Weverything -Werror`, hardening flags (`-fstack-protector-strong`, `-D_FORTIFY_SOURCE=3`), and `-O3` optimization. See the Makefile for a note on switching to `-std=c99` for course compliance.
 
 ```bash
 make -f Makefile.clang clean
 ```
 
-### Direct Compilation with GCC
-
-If you prefer not to use Make, compile directly with GCC:
-
-**Basic compilation:**
+### Direct compilation (per exercise instructions)
 
 ```bash
 gcc -Wall -Wextra -Werror -std=c99 -g main.c game.c bst.c utils.c -o program
 ```
 
-**With additional warnings (recommended):**
-
-```bash
-gcc -Wall -Wextra -Werror -std=c99 -g -Wpedantic -Wshadow -Wformat=2 -Wconversion -Og main.c game.c bst.c utils.c -o program
-```
-
-### Direct Compilation with Clang
-
-**Match Makefile.clang (strict warnings + hardening):**
-
-```bash
-clang -std=c2y -Weverything -Werror -Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded -Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default -Wno-unsafe-buffer-usage -Wno-used-but-marked-unused -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=3 main.c game.c bst.c utils.c -o program
-```
-
-**Course-style C99 (per Makefile.clang note):**
-
-```bash
-clang -std=c99 -Weverything -Werror -Wno-old-style-cast -Wno-disabled-macro-expansion -Wno-padded -Wno-reserved-id-macro -Wno-declaration-after-statement -Wno-switch-default -Wno-unsafe-buffer-usage -Wno-used-but-marked-unused -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=3 main.c game.c bst.c utils.c -o program
-```
-
----
-
-## Usage
-
-Run the compiled program with two required arguments:
+## Running
 
 ```bash
 ./program <player_hp> <base_attack>
 ```
 
-**Parameters:**
-- `player_hp` - Maximum hit points for the player
-- `base_attack` - Base attack damage for the player
-
-**Example:**
+Example:
 
 ```bash
 ./program 100 15
 ```
 
-### Main Menu
+## Gameplay
 
-Upon starting, you'll see the main menu:
+### Main Menu
 
 ```
 === MENU ===
-1.Add Room
-2.Init Player
-3.Play
-4.Exit
+1. Add Room
+2. Init Player
+3. Play
+4. Exit
 ```
 
-### Gameplay Flow
-
-1. **Add Rooms** - Create dungeon rooms, optionally adding monsters and items
-2. **Init Player** - Initialize the player character (rooms must exist first)
-3. **Play** - Enter the game and explore the dungeon
-
-### In-Game Options
-
-During gameplay:
+### In-Game Actions
 
 ```
-1.Move     - Navigate to adjacent rooms
-2.Fight    - Battle the monster in current room
-3.Pickup   - Collect items from current room
-4.Bag      - View collected items
-5.Defeated - View defeated monsters
-6.Quit     - Return to main menu
+1. Move      — Navigate to adjacent rooms
+2. Fight     — Battle the monster in current room
+3. Pickup    — Collect items
+4. Bag       — View collected items (BST in-order)
+5. Defeated  — View defeated monsters (BST in-order)
+6. Quit      — Return to main menu
 ```
-
----
-
-## Game Mechanics
 
 ### Monster Types
 
-| Type    | Description |
-|---------|-------------|
-| PHANTOM | Ethereal enemy |
-| SPIDER  | Creepy crawler |
-| DEMON   | Fiery foe |
-| GOLEM   | Stone guardian |
-| COBRA   | Venomous serpent |
+Phantom, Spider, Demon, Golem, Cobra — each with unique stats.
 
 ### Item Types
 
-| Type  | Effect |
-|-------|--------|
-| ARMOR | Increases defense/HP |
-| SWORD | Increases attack damage |
-
-### Combat
-
-- Turn-based battle system
-- Player attacks first, then monster retaliates
-- Combat continues until one side's HP reaches 0
-- Defeated monsters are stored in a BST (in-order by name)
-- Player death results in game over
+Armor (increases defense/HP) and Sword (increases attack damage).
 
 ### Victory
 
-Win by visiting all rooms and defeating all monsters!
+Visit all rooms and defeat all monsters to win.
 
----
+## Code Structure
 
-## Reference Implementation
+The project is split across 4 source files and 3 headers.
 
-The `ex6_linux` file is a **reference implementation binary provided by the Teaching Assistant (TA)**. It demonstrates expected program behavior and can be used to verify your implementation's correctness.
+### Data Types (`game.h`)
 
-To run the reference implementation:
+**Enums:** `ItemType` (ARMOR, SWORD), `MonsterType` (PHANTOM, SPIDER, DEMON, GOLEM, COBRA), `Direction` (UP, DOWN, LEFT, RIGHT), `Bool` (FALSE, TRUE).
 
-```bash
-chmod +x ex6_linux
-./ex6_linux <player_hp> <base_attack>
-```
+**Structs:**
 
----
+| Struct | Key Fields |
+|--------|------------|
+| `Item` | `name`, `type`, `value` |
+| `Monster` | `name`, `type`, `hp`, `maxHp`, `attack` |
+| `Room` | `id`, `x`/`y`, `visited`, `monster*`, `item*`, `next` (linked list) |
+| `Player` | `hp`, `maxHp`, `baseAttack`, `bag` (BST), `defeatedMonsters` (BST), `currentRoom` |
+| `GameState` | `rooms`, `player`, `roomCount`, `configMaxHp`, `configBaseAttack` |
 
-## License Disclosure
+### Generic BST (`bst.h` / `bst.c`)
 
-> **⚠️ IMPORTANT NOTICE**
->
-> The base implementation and design of this project originates from commit [`86052561dec8a889767fe80c1d644ff45553ba52`](https://github.com/CSI-BIU/ex6/commit/86052561dec8a889767fe80c1d644ff45553ba52) and is **NOT owned by me**.
->
-> Any license included in this repository **may not apply** to the code and design that existed at or before that commit. The original base implementation may be subject to different terms, including but not limited to academic institution policies, course material restrictions, or other proprietary rights.
->
-> This disclosure is made in good faith to clarify ownership and licensing boundaries. If you are the original author or rights holder and have concerns, please open an issue or contact the repository maintainer.
+Uses `void*` data with function pointers for comparison, printing, and freeing:
 
----
+| Function | Description |
+|----------|-------------|
+| `createBST(cmp, print, freeData)` | Allocate a BST with callback functions. |
+| `bstInsert(root, data, cmp)` | Insert data; returns `NULL` on duplicate. |
+| `bstFind(root, data, cmp)` | Search by comparison function. |
+| `bstInorder(root, print)` | In-order traversal (LNR). |
+| `bstPreorder(root, print)` | Pre-order traversal (NLR). |
+| `bstPostorder(root, print)` | Post-order traversal (LRN). |
+| `bstFree(root, freeData)` | Recursively free all nodes and their data. |
 
-## Author
+### Game Logic (`game.c`)
 
-- **Name:** Avraham Tsaban
-- **Assignment:** Exercise 6
+| Function | Description |
+|----------|-------------|
+| `playGame(g)` | Main game loop — map display, action menu (move/fight/pickup/bag/defeated/quit). |
+| `move(g)` | *(static)* Move player to adjacent room; blocks if monster is present. |
+| `fight(g)` | *(static)* Initiate combat with the room's monster. |
+| `battleLoop(player, monster)` | *(static)* Turn-based combat loop; returns TRUE if player wins. |
+| `pickup(g)` | *(static)* Pick up room's item into player's bag BST. |
+| `viewBag(g)` / `viewDefeated(g)` | *(static)* Display BST contents in user-chosen traversal order. |
+| `checkVictory(g)` | *(static)* Check if all rooms visited and all monsters defeated. |
+| `freeGame(g)` | Free entire game state (player, BSTs, all rooms). |
+| `safeMalloc(size, g)` | `malloc` wrapper — frees game and exits on failure. |
+| `findByID(id, g)` / `findByCoordinates(coords, g)` | Room lookup in linked list. |
+| `displayMap(g)` / `roomLegend(g)` | Print spatial grid of rooms / per-room monster/item presence. |
+| `moveCoords(coord, dir)` | Apply directional offset to coordinates. |
+
+### Main Entry Point (`main.c`)
+
+| Function | Description |
+|----------|-------------|
+| `main(argc, argv)` | Parses `<player_hp>` and `<base_attack>` args, runs menu loop. |
+| `addRoom(g)` | *(static)* Creates a room: prompts for anchor, direction, monster, item. |
+| `getMonster(g)` / `getItem(g)` | *(static)* Optionally creates a monster or item from user input. |
+| `initPlayer(g)` | *(static)* Allocates player with empty BSTs; places at room 0. |
+
+### Utilities (`utils.c` / `utils.h`)
+
+| Function | Description |
+|----------|-------------|
+| `getInt(prompt)` | Validated integer input. |
+| `getString(prompt)` | Dynamically reads a string until newline (auto-expanding buffer). |
+| `semiSafeRealloc(ptr, size)` | `realloc` wrapper; frees old pointer on failure. |
+| `getDir()` / `getItemType()` / `getMonsterType()` | Validated enum input prompts. |
+| `compareMonsters(a, b)` / `compareItems(a, b)` | BST comparison callbacks (by name, then other fields). |
+| `printMonster(data)` / `printItem(data)` | BST print callbacks. |
+| `freeMonster(data)` / `freeItem(data)` | BST free callbacks. |
+
+## Project Files
+
+| File | Description |
+|------|-------------|
+| `main.c` | Entry point, menu system, room and player initialization |
+| `game.c` / `game.h` | Core game logic, combat, movement, victory conditions |
+| `bst.c` / `bst.h` | Generic Binary Search Tree implementation (using `void*`) |
+| `utils.c` / `utils.h` | Utility functions for I/O and memory management |
+| `Makefile` | GCC build configuration |
+| `Makefile.clang` | Clang build configuration with hardening flags |
+| `ex6.example` | Reference Linux executable provided by the TA |
+| `ex6_instructions.md` | Exercise instructions |
+| `input.txt` / `output.txt` | Sample input and expected output |
+| `.vscode/` | VS Code configuration for debugging (see below) |
+
+## VS Code Debugging
+
+The `.vscode/` directory contains configurations tailored for debugging in VS Code:
+
+- **`tasks.json`** — Build task that compiles the project with GCC and debug symbols.
+- **`launch.json`** — Debug configuration using GDB (`cppdbg`), launching the program with sample arguments and a pre-launch build step.
+
+These files allow setting breakpoints and stepping through the code directly in VS Code.
+
+## Code Ownership
+
+The base implementation and design originate from the TA's [initial commit](https://github.com/CSI-BIU/ex6/commit/86052561dec8a889767fe80c1d644ff45553ba52). The student built upon this scaffolding. Both the TA's and the student's code are present in the repository.
+
+## Attribution
+
+The exercise design, specifications, instructions, scaffolding code, and sample I/O were created by **Eliyahu Houri**, the Teaching Assistant responsible for this assignment. The instructions file (`ex6_instructions.md`) and the reference executable (`ex6.example`) are his work. Any license in this repository applies only to the student's code implementation and not to the exercise design or TA-provided materials.
