@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g -lm -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wstrict-overflow=2 -Wwrite-strings -Wcast-align -Wpointer-arith -Werror -Wconversion -Og
+CFLAGS = -Wall -Wextra -Werror -std=c2y -g -lm -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wformat=2 -Wstrict-overflow=2 -Wwrite-strings -Wcast-align -Wpointer-arith -Werror -Wconversion -Og
 
 SRCS = main.c game.c bst.c utils.c
 OBJS = $(SRCS:.c=.o)
@@ -15,5 +15,4 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) 
-	# rm $(TARGET)
+	rm -f $(OBJS) $(TARGET)

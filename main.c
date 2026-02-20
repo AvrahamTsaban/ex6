@@ -176,7 +176,6 @@ static void initPlayer(GameState* g) {
     player->hp = player->maxHp;
     player->baseAttack = g->configBaseAttack;
     player->currentRoom = findByID(0, g);
-    player->currentRoom->visited = 1;
     
     g->player = player;
 }

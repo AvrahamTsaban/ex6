@@ -12,6 +12,7 @@ static void freeRoom(Room* r);
 static void checkVictory(GameState* g);
 static void viewBag(GameState* g);
 static void viewDefeated(GameState* g);
+static void markVisited(GameState* g, Room* r);
 
 void playGame(GameState* g) {
     // check for valid game state and player
@@ -23,6 +24,7 @@ void playGame(GameState* g) {
         return;
     }
 
+    markVisited(g, g->player->currentRoom);
     // game loop
     int choice;
     do {
@@ -96,8 +98,7 @@ static void move(GameState* g) {
     } else {
         g->player->currentRoom = targetRoom;
         if (targetRoom->monster == NULL) {
-            targetRoom->visited = 1;
-            checkVictory(g);
+            markVisited(g, targetRoom);
         }
     }
 }
@@ -119,8 +120,7 @@ static void fight(GameState* g) {
         // soft failure: remove invalid monster and move on
         freeMonster(monster);
         currentRoom->monster = NULL;
-        currentRoom->visited = 1;
-        checkVictory(g);
+        markVisited(g, currentRoom);
         return;
     }
     if (player->hp <= 0 || player->maxHp <= 0 || (monster->attack <= 0 && player->baseAttack <= 0)) {
@@ -142,8 +142,7 @@ static void fight(GameState* g) {
             freeMonster(monster);
         }
         currentRoom->monster = NULL;
-        currentRoom->visited = 1;
-        checkVictory(g);
+        markVisited(g, currentRoom);
     } else {
         // player defeated: end game
         printf("--- YOU DIED ---\n");
@@ -453,3 +452,10 @@ void roomLegend(GameState* g) {
 
 }
 
+static void markVisited(GameState* g, Room* r) {
+    if (g == NULL || r == NULL) {
+        return;
+    }
+    r->visited = 1;
+    checkVictory(g);
+}
