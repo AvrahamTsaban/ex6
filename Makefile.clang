@@ -3,7 +3,7 @@ CFLAGS = -std=c2y -Weverything -Werror -Wno-old-style-cast -Wno-disabled-macro-e
 
 # for cs course add -Wno-strict-prototypes -Wno-missing-prototypes, and replace -std=c2y with -std=c99. also try removing -Wno-switch-default to see wether or not you have defaults missing (ommited here due to false warnings when using enums on switch).
 # for testing replace -O3 with -Og -g
-# for taking care of every printf return value and be as hardened as possible, add -Wno-used-but-marked-unused
+# for taking care of every printf return value and be as hardened as possible, remove -Wno-used-but-marked-unused
 
 SRCS = main.c game.c bst.c utils.c
 OBJS = $(SRCS:.c=.o)
